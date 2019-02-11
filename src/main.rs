@@ -41,7 +41,7 @@ fn main() {
 
 
     event_loop.run(move |_, data| {
-        wave_struct.change_freq(440.0 + wave_struct.current_clock);
+        // wave_struct.change_freq(440.0 + wave_struct.current_clock);
         match data {
             cpal::StreamData::Output { buffer: cpal::UnknownTypeOutputBuffer::U16(mut buffer) } => {
                 for sample in buffer.chunks_mut(format.channels as usize) {
