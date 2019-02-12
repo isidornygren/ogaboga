@@ -14,7 +14,6 @@ enum Stage {
 pub struct PulseModulator<W: WaveGenerator> {
     clock: f32,
     amplitude: f32,
-    target_amplitude: f32,
     envelope: Envelope,
     wave_form: WaveStruct<W>,
     stage: Stage,
@@ -26,7 +25,6 @@ impl <W: WaveGenerator> PulseModulator <W> {
         return PulseModulator {
             clock: 0.0,
             amplitude: 0.0,
-            target_amplitude: 0.0,
             envelope: envelope,
             wave_form: wave_form,
             stage: Stage::Attack,
@@ -83,6 +81,6 @@ impl <W: WaveGenerator> PulseModulator <W> {
             self.wave_form.change_freq(80.0 + rand::thread_rng().gen::<f32>() * 440.0);
         }
         self.update_amplitude();
-        return self.wave_form.next() * self.target_amplitude;
+        return self.wave_form.next() * self.amplitude;
     }
 }
