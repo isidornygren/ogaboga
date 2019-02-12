@@ -3,10 +3,14 @@ extern crate rand;
 extern crate noise;
 
 mod wave_generator;
+mod pulse_modulator;
+mod envelope;
 
 use rand::prelude::*;
 use noise::{NoiseFn, Perlin};
 use self::wave_generator::{WaveStruct, SineWave};
+use self::pulse_modulator::PulseModulator;
+use self::envelope::Envelope;
 
 // use wave_generator::SineWave;
 
@@ -22,7 +26,17 @@ fn main() {
     // let sample_clock = 0f32;
     // let perlin = Perlin::new();
 
-    let mut wave_struct = WaveStruct::new(sample_rate, 440.0, SineWave {});
+    let mut wave_struct = WaveStruct::new(sample_rate, 880.0, SineWave {});
+    let mut pulse_modulator = PulseModulator::new(
+        sample_rate,
+        Envelope {
+            attack: 0.25,
+            decay: 1.0,
+            sustain: 0.8,
+            release: 0.1,
+        },
+        wave_struct
+    );
 
     // let mut next_value = || {
         // sample_clock = (sample_clock + 1.0) % sample_rate;
@@ -46,7 +60,7 @@ fn main() {
             cpal::StreamData::Output { buffer: cpal::UnknownTypeOutputBuffer::U16(mut buffer) } => {
                 for sample in buffer.chunks_mut(format.channels as usize) {
                     // let value = ((next_value() * 0.5 + 0.5) * std::u16::MAX as f32) as u16;
-                    let value = ((wave_struct.next() * 0.5 + 0.5) * std::u16::MAX as f32) as u16;
+                    let value = ((pulse_modulator.next() * 0.5 + 0.5) * std::u16::MAX as f32) as u16;
                     for out in sample.iter_mut() {
                         *out = value;
                     }
@@ -54,7 +68,7 @@ fn main() {
             },
             cpal::StreamData::Output { buffer: cpal::UnknownTypeOutputBuffer::I16(mut buffer) } => {
                 for sample in buffer.chunks_mut(format.channels as usize) {
-                    let value = (wave_struct.next() * std::i16::MAX as f32) as i16;
+                    let value = (pulse_modulator.next() * std::i16::MAX as f32) as i16;
                     for out in sample.iter_mut() {
                         *out = value;
                     }
@@ -62,7 +76,7 @@ fn main() {
             },
             cpal::StreamData::Output { buffer: cpal::UnknownTypeOutputBuffer::F32(mut buffer) } => {
                 for sample in buffer.chunks_mut(format.channels as usize) {
-                    let value = wave_struct.next();
+                    let value = pulse_modulator.next();
                     for out in sample.iter_mut() {
                         *out = value;
                     }

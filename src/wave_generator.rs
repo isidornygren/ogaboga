@@ -32,6 +32,7 @@ impl<W: WaveGenerator> WaveStruct<W> {
 pub struct SineWave {}
 impl WaveGenerator for SineWave {
     fn next(&self, clock: f32, sample_rate: f32, freq: f32) -> f32 {
+        println!("Freq: {}", freq);
         return (clock * freq * PI_2 / sample_rate).sin();
     }
 }
