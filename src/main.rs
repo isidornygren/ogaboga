@@ -26,15 +26,15 @@ fn main() {
     // let sample_clock = 0f32;
     // let perlin = Perlin::new();
 
-    let mut wave_struct = WaveStruct::new(sample_rate, 880.0, SineWave {});
+    let wave_struct = WaveStruct::new(sample_rate, 440.0, SineWave {});
     let mut pulse_modulator = PulseModulator::new(
-        sample_rate,
-        Envelope {
-            attack: 0.25,
-            decay: 1.0,
-            sustain: 0.8,
-            release: 0.1,
-        },
+        Envelope::new(
+            0.1,
+            0.05,
+            0.5,
+            0.05,
+            sample_rate
+        ),
         wave_struct
     );
 
@@ -52,8 +52,6 @@ fn main() {
         // rand::thread_rng().gen::<f32>() * 2.0 - 1.0
         // perlin.get([(sample_clock * 0.0099)as f64, 1.0]) as f32
     // };
-
-
     event_loop.run(move |_, data| {
         // wave_struct.change_freq(440.0 + wave_struct.current_clock);
         match data {
