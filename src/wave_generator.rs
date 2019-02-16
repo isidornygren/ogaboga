@@ -43,5 +43,6 @@ pub fn sawtooth_wave(clock: f32) -> f32 {
     return clock / PI - 1.0;
 }
 pub fn triangle_wave(clock: f32) -> f32 {
+    // Triangle wave is just a glorified sawtooth wave
     return (clock / PI - 1.0).abs();
 }
