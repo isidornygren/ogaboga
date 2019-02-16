@@ -1,10 +1,11 @@
-const PI_2:f32 = 2.0 * 3.141592;
+const PI:f32 = 3.141592;
+const PI_2:f32 = 2.0 * PI;
 
-pub struct WaveStruct<T: WaveGenerator> {
+pub struct WaveStruct {
     pub current_clock: f32,
     sample_rate: f32,
     calc_freq: f32,
-    wave_gen: T,
+    wave_gen: &'static (Fn(f32) -> f32 + Sync),
     step_size: f32,
     step: f32,
 }
@@ -13,8 +14,8 @@ pub trait WaveGenerator {
     fn next(&self, clock: f32) -> f32;
 }
 
-impl<W: WaveGenerator> WaveStruct<W> {
-    pub fn new(sample_rate: f32, freq: f32, wave_gen: W) -> WaveStruct<W> {
+impl WaveStruct {
+    pub fn new(sample_rate: f32, freq: f32, wave_gen: &'static (Fn(f32) -> f32 + Sync)) -> WaveStruct {
         return WaveStruct {
             current_clock: 0.0,
             sample_rate: sample_rate,
@@ -25,18 +26,22 @@ impl<W: WaveGenerator> WaveStruct<W> {
         }
     }
     pub fn next(&mut self) -> f32 {
+        // Will create a period between 0 and and 2*PI
         self.step = (self.step + self.step_size) % PI_2;
-        return self.wave_gen.next(self.step);
+        return (self.wave_gen)(self.step);
     }
     pub fn change_freq(&mut self, freq: f32) {
         self.step_size = (PI_2 * freq) / self.sample_rate;
     }
 }
 
-pub struct SineWave {}
-impl WaveGenerator for SineWave {
-    // period is always 2 PI
-    fn next(&self, clock: f32) -> f32 {
-        return (clock).sin();
-    }
+// Some waveform generators, you could just use f32::sin to get a normal sinusoid
+pub fn square_wave(clock: f32) -> f32 {
+    return (clock / PI_2).round() * 2.0 - 1.0;
+}
+pub fn sawtooth_wave(clock: f32) -> f32 {
+    return clock / PI - 1.0;
+}
+pub fn triangle_wave(clock: f32) -> f32 {
+    return (clock / PI - 1.0).abs();
 }

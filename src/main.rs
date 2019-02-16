@@ -8,7 +8,7 @@ mod envelope;
 
 use rand::prelude::*;
 use noise::{NoiseFn, Perlin};
-use self::wave_generator::{WaveStruct, SineWave};
+use self::wave_generator::{WaveStruct, square_wave, sawtooth_wave, triangle_wave};
 use self::pulse_modulator::PulseModulator;
 use self::envelope::Envelope;
 
@@ -26,32 +26,18 @@ fn main() {
     // let sample_clock = 0f32;
     // let perlin = Perlin::new();
 
-    let wave_struct = WaveStruct::new(sample_rate, 440.0, SineWave {});
+    let wave_struct = WaveStruct::new(sample_rate, 440.0, &triangle_wave);
     let mut pulse_modulator = PulseModulator::new(
         Envelope::new(
-            0.1,
-            0.05,
+            1.0,
             0.5,
-            0.05,
+            0.5,
+            0.5,
             sample_rate
         ),
         wave_struct
     );
 
-    // let mut next_value = || {
-        // sample_clock = (sample_clock + 1.0) % sample_rate;
-        // ordinary boring sine wave
-        // (sample_clock * 440.0 * 2.0 * 3.141592 / sample_rate).sin()
-        // square wave
-        // (sample_clock * 440.0 * 2.0 * 3.141592 / sample_rate).sin().signum()
-        // easy peasy triangle wave
-        // (((sample_clock * 440.0/ sample_rate * 2.0) % 4.0) - 2.0).abs() - 1.0
-        // omg is this a sawtooth wave?!
-        // (((sample_clock * 440.0/ sample_rate * 2.0) % 4.0) - 2.0) % 2.0 - 1.0
-        // what the hell something has gone wrong what is this abomination?!?!?!
-        // rand::thread_rng().gen::<f32>() * 2.0 - 1.0
-        // perlin.get([(sample_clock * 0.0099)as f64, 1.0]) as f32
-    // };
     event_loop.run(move |_, data| {
         // wave_struct.change_freq(440.0 + wave_struct.current_clock);
         match data {

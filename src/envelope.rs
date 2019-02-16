@@ -4,6 +4,7 @@ pub struct Envelope {
     release: f32, // seconds
     sample_rate: f32,
     pub sustain: f32, // amplitude
+    // TODO: Maybe move these variables outside of the envelope?
     pub att_coef: f32,
     pub dec_coef: f32,
     pub rel_coef: f32,
