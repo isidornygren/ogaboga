@@ -2,36 +2,35 @@ const PI:f32 = 3.141592;
 const PI_2:f32 = 2.0 * PI;
 
 pub struct WaveStruct {
-    pub current_clock: f32,
-    sample_rate: f32,
-    calc_freq: f32,
+    current_clock: f32,
+    sample_rate: u32,
     wave_gen: &'static (Fn(f32) -> f32 + Sync),
     step_size: f32,
-    step: f32,
-}
-
-pub trait WaveGenerator {
-    fn next(&self, clock: f32) -> f32;
+    current_step: f32,
 }
 
 impl WaveStruct {
-    pub fn new(sample_rate: f32, freq: f32, wave_gen: &'static (Fn(f32) -> f32 + Sync)) -> WaveStruct {
-        return WaveStruct {
+    pub fn new(sample_rate: u32, freq: f32, wave_gen: &'static (Fn(f32) -> f32 + Sync)) -> WaveStruct {
+        let mut wave_struct = WaveStruct {
             current_clock: 0.0,
             sample_rate: sample_rate,
-            calc_freq: freq,
             wave_gen: wave_gen,
-            step_size: (PI_2 * freq) / sample_rate,
-            step: 0.0,
-        }
+            step_size: 0.0,
+            current_step: 0.0,
+        };
+        wave_struct.set_freq(freq);
+        return wave_struct;
     }
     pub fn next(&mut self) -> f32 {
         // Will create a period between 0 and and 2*PI
-        self.step = (self.step + self.step_size) % PI_2;
-        return (self.wave_gen)(self.step);
+        self.current_step = (self.current_step + self.step_size) % PI_2;
+        return (self.wave_gen)(self.current_step);
     }
-    pub fn change_freq(&mut self, freq: f32) {
-        self.step_size = (PI_2 * freq) / self.sample_rate;
+    pub fn set_wave_gen(&mut self, wave_gen: &'static (Fn(f32) -> f32 + Sync)) {
+        self.wave_gen = wave_gen;
+    }
+    pub fn set_freq(&mut self, freq: f32) {
+        self.step_size = (PI_2 * freq) / self.sample_rate as f32;
     }
 }
 
