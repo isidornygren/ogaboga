@@ -6,6 +6,7 @@ mod wave_generator;
 mod pulse_modulator;
 mod envelope;
 mod voice;
+mod voice_pool;
 
 use self::wave_generator::{WaveStruct, square_wave, sawtooth_wave, triangle_wave};
 use self::envelope::Envelope;
@@ -29,10 +30,6 @@ fn main() {
             0.5
             ), &sawtooth_wave);
     voice.start();
-
-    thread::spawn(move || {
-        
-    });
 
     event_loop.run(move |_, data| {
         // wave_struct.change_freq(440.0 + wave_struct.current_clock);
