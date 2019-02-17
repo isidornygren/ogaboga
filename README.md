@@ -34,3 +34,5 @@ fn main() {
 - Tests
 - Integrate Travis
 - Periodic 1D noice function
+- Rethink abstractions and fix library linking
+- Examples
