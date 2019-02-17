@@ -28,9 +28,9 @@ impl VoicePool {
         return self.workers.len() - 1;
     }
 
-    pub fn send(&self, event: VoiceEvent, idx: usize) -> Result<(), SendError<VoiceEvent>>{
-        assert!(self.workers.len() >= idx);
-        self.workers[idx].sender.send(event)
+    pub fn send(&self, event: VoiceEvent, id: usize) -> Result<(), SendError<VoiceEvent>>{
+        assert!(self.workers.len() >= id);
+        self.workers[id].sender.send(event)
     }
 }
 
