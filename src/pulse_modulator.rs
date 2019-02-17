@@ -1,5 +1,6 @@
 use super::envelope::Envelope;
 
+#[derive(Debug, Copy, Clone)]
 enum Stage {
     Attack,
     Decay,
@@ -8,6 +9,7 @@ enum Stage {
     None
 }
 
+#[derive(Debug, Copy, Clone)]
 pub struct PulseModulator {
     clock: f32,
     amplitude: f32,

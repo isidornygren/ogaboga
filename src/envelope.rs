@@ -1,3 +1,4 @@
+#[derive(Debug, Copy, Clone)]
 pub struct Envelope {
     pub attack: f32,  // seconds
     pub decay: f32,   // seconds

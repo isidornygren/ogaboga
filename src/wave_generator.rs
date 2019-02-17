@@ -1,20 +1,21 @@
 const PI:f32 = 3.141592;
 const PI_2:f32 = 2.0 * PI;
 
-pub struct WaveStruct {
+#[derive(Copy, Clone)]
+pub struct WaveGenerator {
     current_clock: f32,
     sample_rate: u32,
-    wave_gen: &'static (Fn(f32) -> f32 + Sync),
+    waveform: &'static (Fn(f32) -> f32 + Sync),
     step_size: f32,
     current_step: f32,
 }
 
-impl WaveStruct {
-    pub fn new(sample_rate: u32, freq: f32, wave_gen: &'static (Fn(f32) -> f32 + Sync)) -> WaveStruct {
-        let mut wave_struct = WaveStruct {
+impl WaveGenerator {
+    pub fn new(sample_rate: u32, freq: f32, waveform: &'static (Fn(f32) -> f32 + Sync)) -> WaveGenerator {
+        let mut wave_struct = WaveGenerator {
             current_clock: 0.0,
             sample_rate: sample_rate,
-            wave_gen: wave_gen,
+            waveform: waveform,
             step_size: 0.0,
             current_step: 0.0,
         };
@@ -24,10 +25,10 @@ impl WaveStruct {
     pub fn next(&mut self) -> f32 {
         // Will create a period between 0 and and 2*PI
         self.current_step = (self.current_step + self.step_size) % PI_2;
-        return (self.wave_gen)(self.current_step);
+        return (self.waveform)(self.current_step);
     }
-    pub fn set_wave_gen(&mut self, wave_gen: &'static (Fn(f32) -> f32 + Sync)) {
-        self.wave_gen = wave_gen;
+    pub fn set_wave_gen(&mut self, waveform: &'static (Fn(f32) -> f32 + Sync)) {
+        self.waveform = waveform;
     }
     pub fn set_freq(&mut self, freq: f32) {
         self.step_size = (PI_2 * freq) / self.sample_rate as f32;
