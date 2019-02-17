@@ -1,4 +1,4 @@
-use super::envelope::Envelope;
+use crate::Envelope;
 
 #[derive(Debug, Copy, Clone)]
 enum Stage {

@@ -1,7 +1,8 @@
 use std::sync::{mpsc, mpsc::{SendError}};
 use std::thread;
-use super::voice::Voice;
-use super::envelope::Envelope;
+
+use crate::Voice;
+use crate::Envelope;
 
 pub enum VoiceEvent {
     ChangeFreq(f32),

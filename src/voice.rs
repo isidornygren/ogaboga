@@ -1,6 +1,7 @@
-use super::wave_generator::{WaveGenerator}; 
-use super::pulse_modulator::PulseModulator;
-use super::envelope::Envelope;
+use crate::wave_generator::{WaveGenerator}; 
+use crate::pulse_modulator::PulseModulator;
+
+use crate::Envelope;
 
 pub struct Voice {
     wave_gen: WaveGenerator,

@@ -2,21 +2,14 @@ extern crate cpal;
 extern crate rand;
 extern crate noise;
 
+extern crate ogaboga;
+
 use std::{thread, time};
 use rand::Rng;
+use ogaboga::{Envelope, Voice, VoicePool, VoiceEvent};
+use ogaboga::waveforms::{sawtooth_wave, square_wave, triangle_wave};
 
-mod wave_generator;
-mod pulse_modulator;
-mod envelope;
-mod voice;
-mod voice_pool;
-
-use self::wave_generator::{sawtooth_wave, square_wave, triangle_wave};
-use self::envelope::Envelope;
-use self::voice::Voice;
-use self::voice_pool::{VoicePool, VoiceEvent};
-
-fn main() {
+pub fn main() {
     let device = cpal::default_output_device().expect("Failed to get default output device");
     let format = device.default_output_format().expect("Failed to get default output format");
 
