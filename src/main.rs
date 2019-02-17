@@ -30,12 +30,12 @@ fn main() {
         // run this loop so the program won't close
         let sleep_time = time::Duration::from_millis(1000);
         thread::sleep(sleep_time);
-        voice_pool.send(VoiceEvent::ChangeFreq(440.0 + rand::thread_rng().gen::<f32>() * 220.0), 0);
-        voice_pool.send(VoiceEvent::ChangeFreq(440.0 + rand::thread_rng().gen::<f32>() * 220.0), 1);
-        voice_pool.send(VoiceEvent::ChangeFreq(440.0 + rand::thread_rng().gen::<f32>() * 220.0), 2);
+        voice_pool.send(VoiceEvent::ChangeFreq(440.0 + rand::thread_rng().gen::<f32>() * 220.0), 0).unwrap();
+        voice_pool.send(VoiceEvent::ChangeFreq(440.0 + rand::thread_rng().gen::<f32>() * 220.0), 1).unwrap();
+        voice_pool.send(VoiceEvent::ChangeFreq(440.0 + rand::thread_rng().gen::<f32>() * 220.0), 2).unwrap();
 
-        voice_pool.send(VoiceEvent::Pulse, 0);
-        voice_pool.send(VoiceEvent::Pulse, 1);
-        voice_pool.send(VoiceEvent::Pulse, 2);
+        voice_pool.send(VoiceEvent::Pulse, 0).unwrap();
+        voice_pool.send(VoiceEvent::Pulse, 1).unwrap();
+        voice_pool.send(VoiceEvent::Pulse, 2).unwrap();
     };
 }

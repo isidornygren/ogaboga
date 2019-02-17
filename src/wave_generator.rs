@@ -3,7 +3,6 @@ const PI_2:f32 = 2.0 * PI;
 
 #[derive(Copy, Clone)]
 pub struct WaveGenerator {
-    current_clock: f32,
     sample_rate: u32,
     waveform: &'static (Fn(f32) -> f32 + Sync),
     step_size: f32,
@@ -13,7 +12,6 @@ pub struct WaveGenerator {
 impl WaveGenerator {
     pub fn new(sample_rate: u32, freq: f32, waveform: &'static (Fn(f32) -> f32 + Sync)) -> WaveGenerator {
         let mut wave_struct = WaveGenerator {
-            current_clock: 0.0,
             sample_rate: sample_rate,
             waveform: waveform,
             step_size: 0.0,
