@@ -63,3 +63,4 @@ fn main() {
 - Periodic 1D noice function
 - ~~Rethink abstractions and fix library linking~~
 - ~~Example(s)~~
+- Make sure voice pool is thread safe

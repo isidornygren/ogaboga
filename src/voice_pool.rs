@@ -51,6 +51,7 @@ impl VoicePool {
     }
 }
 
+#[allow(dead_code)]
 struct Worker {
     thread: thread::JoinHandle<()>,
     sender: mpsc::Sender<VoiceEvent>,
