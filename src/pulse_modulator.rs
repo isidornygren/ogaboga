@@ -6,7 +6,7 @@ enum Stage {
     Decay,
     Sustain,
     Release,
-    None
+    None,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -40,7 +40,7 @@ impl PulseModulator {
         pulse_modulator.calc_envelope_coef();
         return pulse_modulator;
     }
-    pub fn set_envelope(&mut self, envelope: Envelope){
+    pub fn set_envelope(&mut self, envelope: Envelope) {
         self.envelope = envelope;
         self.calc_envelope_coef();
     }
@@ -49,15 +49,15 @@ impl PulseModulator {
         self.dec_coef = 1.0 / (self.sample_rate as f32 * self.envelope.decay);
         self.rel_coef = 1.0 / (self.sample_rate as f32 * self.envelope.decay);
     }
-    pub fn start(&mut self){
+    pub fn start(&mut self) {
         self.clock = 0.0;
         self.stage = Stage::Attack;
         self.active = true;
     }
-    pub fn stop(&mut self){
+    pub fn stop(&mut self) {
         self.active = false;
     }
-    pub fn next(&mut self) -> f32{
+    pub fn next(&mut self) -> f32 {
         self.clock = self.clock + 1.0;
         match self.stage {
             Stage::Attack => {
@@ -66,26 +66,26 @@ impl PulseModulator {
                     self.amplitude = 1.0;
                     self.stage = Stage::Decay;
                 }
-            },
+            }
             Stage::Decay => {
                 self.amplitude = self.amplitude - self.dec_coef;
                 if self.amplitude < self.envelope.sustain {
                     self.amplitude = self.envelope.sustain;
                     self.stage = Stage::Sustain;
                 }
-            },
+            }
             Stage::Sustain => {
                 if !self.active {
                     self.stage = Stage::Release;
                 }
-            },
+            }
             Stage::Release => {
                 self.amplitude = self.amplitude - self.rel_coef;
                 if self.amplitude < 0.0 {
                     self.amplitude = 0.0;
                     self.stage = Stage::None;
                 }
-            },
+            }
             Stage::None => {}
         };
         return self.amplitude;

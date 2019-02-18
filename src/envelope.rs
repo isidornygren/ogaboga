@@ -12,7 +12,7 @@ impl Envelope {
             attack: attack,
             decay: decay,
             sustain: sustain,
-            release: release, 
-        }
+            release: release,
+        };
     }
 }
