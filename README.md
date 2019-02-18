@@ -57,9 +57,9 @@ fn main() {
 
 ## TODO
 
-- Remove sample rate dependency on voice creation, as the format is deduced during thread creation.
+- ~~Remove sample rate dependency on voice creation, as the format is deduced during thread creation.~~
 - Tests
 - Integrate Travis
 - Periodic 1D noice function
-- Rethink abstractions and fix library linking
-- Examples
+- ~~Rethink abstractions and fix library linking~~
+- ~~Example(s)~~
