@@ -1,6 +1,7 @@
 # OgaBoga
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/isidornygren/ogaboga/blob/master/LICENSE)
+[![Build Status](https://travis-ci.com/isidornygren/ogaboga.svg?branch=master)](https://travis-ci.com/isidornygren/ogaboga)
 
 Ogaboga is a syntheziser library written in rust based on the audio output library [cpal](https://github.com/tomaka/cpal), it's very dumb and you shouldn't really use it if you don't like to do fun stuff that's not terribly optimized.
 

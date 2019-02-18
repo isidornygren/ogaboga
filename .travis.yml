@@ -1,3 +1,11 @@
 language: rust
 rust:
-  - stable
+  - 1.31.0
+addons:
+  apt:
+    packages:
+    - libasound2-dev
+
+os:
+  - linux
+  - osx
