@@ -65,3 +65,4 @@ fn main() {
 - ~~Rethink abstractions and fix library linking~~
 - ~~Example(s)~~
 - Make sure voice pool is thread safe
+- Documentation
