@@ -2,7 +2,6 @@ const PI_2: f32 = 2.0 * 3.141592;
 
 pub type WaveForm = &'static (Fn(f32) -> f32 + Sync);
 
-#[derive(Copy, Clone)]
 pub struct WaveGenerator {
     sample_rate: u32,
     waveform: WaveForm,

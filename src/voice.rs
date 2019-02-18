@@ -3,21 +3,28 @@ use crate::wave_generator::{WaveForm, WaveGenerator};
 
 use crate::Envelope;
 
-pub struct VoiceArgs {
-    wave_gen: WaveForm,
+#[derive(Copy, Clone)]
+pub struct Voice {
+    waveform: WaveForm,
     envelope: Envelope,
 }
 
-pub struct Voice {
+impl Voice {
+    pub fn new(waveform: WaveForm, envelope: Envelope) -> Voice {
+        return Voice { waveform, envelope };
+    }
+}
+
+pub struct VoiceHandler {
     wave_gen: WaveGenerator,
     pulse_modulator: PulseModulator,
 }
 
-impl Voice {
-    pub fn new(sample_rate: u32, envelope: Envelope, waveform: WaveForm) -> Voice {
-        return Voice {
-            wave_gen: WaveGenerator::new(sample_rate, 440.0, waveform),
-            pulse_modulator: PulseModulator::new(envelope, sample_rate),
+impl VoiceHandler {
+    pub fn new(voice_args: Voice, sample_rate: u32) -> VoiceHandler {
+        return VoiceHandler {
+            wave_gen: WaveGenerator::new(sample_rate, 440.0, voice_args.waveform),
+            pulse_modulator: PulseModulator::new(voice_args.envelope, sample_rate),
         };
     }
     pub fn next(&mut self) -> f32 {
