@@ -12,5 +12,5 @@ pub mod waveforms;
 
 pub use crate::envelope::Envelope;
 pub use crate::voice::Voice;
-pub use crate::voice_pool::{VoiceEvent, VoicePoolBuilder};
+pub use crate::voice_pool::{VoiceEvent, VoicePool, VoicePoolBuilder};
 pub use crate::wave_generator::WaveForm;
