@@ -18,6 +18,7 @@ impl Voice {
 pub struct VoiceHandler {
     wave_gen: WaveGenerator,
     pulse_modulator: PulseModulator,
+    amp: f32,
 }
 
 impl VoiceHandler {
@@ -25,18 +26,22 @@ impl VoiceHandler {
         return VoiceHandler {
             wave_gen: WaveGenerator::new(sample_rate, 440.0, voice_args.waveform),
             pulse_modulator: PulseModulator::new(voice_args.envelope, sample_rate),
+            amp: 1.0,
         };
     }
     pub fn next(&mut self) -> f32 {
         let amplitude = self.pulse_modulator.next();
         let current_wave = self.wave_gen.next();
-        return amplitude * current_wave;
+        return (amplitude * current_wave) * self.amp;
     }
     pub fn set_envelope(&mut self, envelope: Envelope) {
         self.pulse_modulator.set_envelope(envelope);
     }
     pub fn set_freq(&mut self, freq: f32) {
         self.wave_gen.set_freq(freq);
+    }
+    pub fn set_amp(&mut self, amp: f32) {
+        self.amp = amp;
     }
     pub fn set_waveform(&mut self, waveform: WaveForm) {
         self.wave_gen.set_waveform(waveform);

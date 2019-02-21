@@ -7,6 +7,7 @@ use crate::WaveForm;
 
 pub enum VoiceEvent {
     ChangeFreq(f32),
+    ChangeAmp(f32),
     Pulse,
     Start,
     Stop,
@@ -27,12 +28,7 @@ impl VoicePoolBuilder {
         return self;
     }
     pub fn build(self) -> VoicePool {
-        return VoicePool::new(
-            self.voices
-                .into_iter()
-                .map(|v| Worker::new(v))
-                .collect(),
-        );
+        return VoicePool::new(self.voices.into_iter().map(|v| Worker::new(v)).collect());
     }
 }
 
@@ -82,6 +78,9 @@ impl Worker {
                     match voice_event.unwrap() {
                         VoiceEvent::ChangeFreq(frequency) => {
                             voice_handler.set_freq(frequency);
+                        }
+                        VoiceEvent::ChangeAmp(amplitude) => {
+                            voice_handler.set_amp(amplitude);
                         }
                         VoiceEvent::Pulse => {
                             voice_handler.pulse();
