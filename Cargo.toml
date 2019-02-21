@@ -13,7 +13,6 @@ name = "ogaboga"
 path = "src/lib.rs"
 
 [dependencies]
-sample = "0.10.0"
 cpal = "0.8.2"
 rand = "0.6.5"
 noise = "0.5.1"

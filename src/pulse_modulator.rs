@@ -46,8 +46,9 @@ impl PulseModulator {
     }
     fn calc_envelope_coef(&mut self) {
         self.att_coef = 1.0 / (self.sample_rate as f32 * self.envelope.attack);
-        self.dec_coef = 1.0 / (self.sample_rate as f32 * self.envelope.decay);
-        self.rel_coef = 1.0 / (self.sample_rate as f32 * self.envelope.release);
+        self.dec_coef =
+            (1.0 - self.envelope.sustain) / (self.sample_rate as f32 * self.envelope.decay);
+        self.rel_coef = self.envelope.sustain / (self.sample_rate as f32 * self.envelope.release);
     }
     pub fn start(&mut self) {
         self.clock = 0.0;
@@ -89,5 +90,32 @@ impl PulseModulator {
             Stage::None => {}
         };
         return self.amplitude;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    const ENVELOPE: Envelope = Envelope {
+        attack: 1.0,
+        decay: 0.2,
+        sustain: 0.5,
+        release: 2.0,
+    };
+
+    #[test]
+    fn calculates_attack_coef() {
+        let p_m = PulseModulator::new(ENVELOPE, 10);
+        assert_eq!(p_m.att_coef, 0.1);
+    }
+    #[test]
+    fn calculates_decay_coef() {
+        let p_m = PulseModulator::new(ENVELOPE, 10);
+        assert_eq!(p_m.dec_coef, 0.25);
+    }
+    #[test]
+    fn calculates_release_coef() {
+        let p_m = PulseModulator::new(ENVELOPE, 10);
+        assert_eq!(p_m.rel_coef, 0.025);
     }
 }
