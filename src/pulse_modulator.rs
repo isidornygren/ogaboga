@@ -31,7 +31,7 @@ impl PulseModulator {
             amplitude: 0.0,
             envelope: envelope,
             sample_rate: sample_rate,
-            stage: Stage::Attack,
+            stage: Stage::None,
             active: false,
             att_coef: 0.0,
             dec_coef: 0.0,
