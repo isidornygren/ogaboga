@@ -47,7 +47,7 @@ impl PulseModulator {
     fn calc_envelope_coef(&mut self) {
         self.att_coef = 1.0 / (self.sample_rate as f32 * self.envelope.attack);
         self.dec_coef = 1.0 / (self.sample_rate as f32 * self.envelope.decay);
-        self.rel_coef = 1.0 / (self.sample_rate as f32 * self.envelope.decay);
+        self.rel_coef = 1.0 / (self.sample_rate as f32 * self.envelope.release);
     }
     pub fn start(&mut self) {
         self.clock = 0.0;
