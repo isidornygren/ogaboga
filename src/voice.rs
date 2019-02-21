@@ -41,7 +41,7 @@ impl VoiceHandler {
         self.wave_gen.set_freq(freq);
     }
     pub fn set_amp(&mut self, amp: f32) {
-        self.amp = amp.min(0.0).max(1.0);
+        self.amp = amp.min(1.0).max(0.0);
     }
     pub fn set_waveform(&mut self, waveform: WaveForm) {
         self.wave_gen.set_waveform(waveform);
