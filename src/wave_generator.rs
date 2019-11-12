@@ -1,6 +1,6 @@
-const PI_2: f32 = 2.0 * 3.141592;
+const PI_2: f32 = 2.0 * std::f32::consts::PI;
 
-pub type WaveForm = &'static (Fn(f32) -> f32 + Sync);
+pub type WaveForm = &'static (dyn Fn(f32) -> f32 + Sync);
 
 pub struct WaveGenerator {
     sample_rate: u32,
@@ -10,10 +10,10 @@ pub struct WaveGenerator {
 }
 
 impl WaveGenerator {
-    pub fn new(sample_rate: u32, freq: f32, waveform: WaveForm) -> WaveGenerator {
-        let mut wave_struct = WaveGenerator {
-            sample_rate: sample_rate,
-            waveform: waveform,
+    pub fn new(sample_rate: u32, freq: f32, waveform: WaveForm) -> Self {
+        let mut wave_struct = Self {
+            sample_rate,
+            waveform,
             step_size: 0.0,
             current_step: 0.0,
         };

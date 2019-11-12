@@ -8,6 +8,7 @@ use crate::WaveForm;
 pub enum VoiceEvent {
     ChangeFreq(f32),
     ChangeAmp(f32),
+    PulseFreq(f32),
     Pulse,
     Start,
     Stop,
@@ -20,15 +21,25 @@ pub struct VoicePoolBuilder {
 }
 
 impl VoicePoolBuilder {
-    pub fn new() -> VoicePoolBuilder {
-        return VoicePoolBuilder { voices: vec![] };
+    #[inline]
+    pub fn new() -> Self {
+        return Self::default();
     }
-    pub fn with_voice(mut self, voice: Voice) -> VoicePoolBuilder {
+    #[inline]
+    pub fn with_voice(mut self, voice: Voice) -> Self {
         self.voices.push(voice);
         return self;
     }
+    #[inline]
     pub fn build(self) -> VoicePool {
-        return VoicePool::new(self.voices.into_iter().map(|v| Worker::new(v)).collect());
+        return VoicePool::new(self.voices.into_iter().map(Worker::new).collect());
+    }
+}
+
+impl std::default::Default for VoicePoolBuilder {
+    #[inline]
+    fn default() -> Self {
+        return Self { voices: vec![] };
     }
 }
 
@@ -37,10 +48,11 @@ pub struct VoicePool {
 }
 
 impl VoicePool {
-    fn new(workers: Vec<Worker>) -> VoicePool {
-        return VoicePool { workers };
+    const fn new(workers: Vec<Worker>) -> Self {
+        return Self { workers };
     }
 
+    #[inline]
     pub fn send(&self, event: VoiceEvent, id: usize) -> Result<(), SendError<VoiceEvent>> {
         assert!(self.workers.len() >= id);
         self.workers[id].sender.send(event)
@@ -54,7 +66,7 @@ struct Worker {
 }
 
 impl Worker {
-    pub fn new(voice: Voice) -> Worker {
+    pub fn new(voice: Voice) -> Self {
         // Build event actions
         let (sender, receiver) = mpsc::channel();
         let receiver: mpsc::Receiver<VoiceEvent> = receiver;
@@ -65,22 +77,29 @@ impl Worker {
             .default_output_format()
             .expect("Failed to get default output format building a voice pool.");
         let event_loop = cpal::EventLoop::new();
-        let stream_id = event_loop.build_output_stream(&device, &format).unwrap();
-        event_loop.play_stream(stream_id.clone());
+        let stream_id = event_loop
+            .build_output_stream(&device, &format)
+            .expect("Could not build output stream");
+        event_loop.play_stream(stream_id);
+
         // build the voice
         let mut voice_handler = VoiceHandler::new(voice, format.sample_rate.0);
 
         let thread = thread::spawn(move || {
             event_loop.run(move |_, data| {
                 let voice_event = receiver.try_recv();
-                if !voice_event.is_err() {
+                if voice_event.is_ok() {
                     // we received a message
-                    match voice_event.unwrap() {
-                        VoiceEvent::ChangeFreq(frequency) => {
-                            voice_handler.set_freq(frequency);
+                    match voice_event.expect("Could not unwrap voice event") {
+                        VoiceEvent::ChangeFreq(freq) => {
+                            voice_handler.set_freq(freq);
                         }
-                        VoiceEvent::ChangeAmp(amplitude) => {
-                            voice_handler.set_amp(amplitude);
+                        VoiceEvent::ChangeAmp(amp) => {
+                            voice_handler.set_amp(amp);
+                        }
+                        VoiceEvent::PulseFreq(freq) => {
+                            voice_handler.set_freq(freq);
+                            voice_handler.pulse();
                         }
                         VoiceEvent::Pulse => {
                             voice_handler.pulse();
@@ -137,6 +156,6 @@ impl Worker {
                 }
             });
         });
-        return Worker { thread, sender };
+        return Self { thread, sender };
     }
 }

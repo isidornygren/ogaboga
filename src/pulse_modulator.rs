@@ -25,12 +25,12 @@ pub struct PulseModulator {
 }
 
 impl PulseModulator {
-    pub fn new(envelope: Envelope, sample_rate: u32) -> PulseModulator {
-        let mut pulse_modulator = PulseModulator {
+    pub fn new(envelope: Envelope, sample_rate: u32) -> Self {
+        let mut pulse_modulator = Self {
             clock: 0.0,
             amplitude: 0.0,
-            envelope: envelope,
-            sample_rate: sample_rate,
+            envelope,
+            sample_rate,
             stage: Stage::None,
             active: false,
             att_coef: 0.0,
@@ -59,17 +59,17 @@ impl PulseModulator {
         self.active = false;
     }
     pub fn next(&mut self) -> f32 {
-        self.clock = self.clock + 1.0;
+        self.clock += 1.0;
         match self.stage {
             Stage::Attack => {
-                self.amplitude = self.amplitude + self.att_coef;
+                self.amplitude += self.att_coef;
                 if self.amplitude > 1.0 {
                     self.amplitude = 1.0;
                     self.stage = Stage::Decay;
                 }
             }
             Stage::Decay => {
-                self.amplitude = self.amplitude - self.dec_coef;
+                self.amplitude -= self.dec_coef;
                 if self.amplitude < self.envelope.sustain {
                     self.amplitude = self.envelope.sustain;
                     self.stage = Stage::Sustain;
@@ -81,7 +81,7 @@ impl PulseModulator {
                 }
             }
             Stage::Release => {
-                self.amplitude = self.amplitude - self.rel_coef;
+                self.amplitude -= self.rel_coef;
                 if self.amplitude < 0.0 {
                     self.amplitude = 0.0;
                     self.stage = Stage::None;

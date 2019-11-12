@@ -10,8 +10,9 @@ pub struct Voice {
 }
 
 impl Voice {
-    pub fn new(waveform: WaveForm, envelope: Envelope) -> Voice {
-        return Voice { waveform, envelope };
+    #[inline]
+    pub fn new(waveform: WaveForm, envelope: Envelope) -> Self {
+        return Self { waveform, envelope };
     }
 }
 
@@ -22,8 +23,8 @@ pub struct VoiceHandler {
 }
 
 impl VoiceHandler {
-    pub fn new(voice_args: Voice, sample_rate: u32) -> VoiceHandler {
-        return VoiceHandler {
+    pub fn new(voice_args: Voice, sample_rate: u32) -> Self {
+        return Self {
             wave_gen: WaveGenerator::new(sample_rate, 440.0, voice_args.waveform),
             pulse_modulator: PulseModulator::new(voice_args.envelope, sample_rate),
             amp: 1.0,

@@ -9,20 +9,15 @@ use std::{thread, time};
 
 fn main() {
     // Initiate the voice pool that we will initiate voices in
-    let voice_pool = VoicePoolBuilder::new()
-        .with_voice(Voice::new(
+    let mut voice_pool_builder = VoicePoolBuilder::new();
+
+    for _ in 0..3 {
+        voice_pool_builder = voice_pool_builder.with_voice(Voice::new(
             &triangle_wave,
             Envelope::new(0.5, 0.5, 0.5, 0.5),
-        ))
-        .with_voice(Voice::new(
-            &triangle_wave,
-            Envelope::new(0.5, 0.5, 0.5, 0.5),
-        ))
-        .with_voice(Voice::new(
-            &triangle_wave,
-            Envelope::new(0.5, 0.5, 0.5, 0.5),
-        ))
-        .build();
+        ));
+    }
+    let voice_pool = voice_pool_builder.build();
 
     // loop {
     // let sleep_time = time::Duration::from_millis(1000);
