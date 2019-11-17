@@ -1,3 +1,4 @@
+use cpal::traits::{DeviceTrait, EventLoopTrait, HostTrait};
 use std::sync::{mpsc, mpsc::SendError};
 use std::thread;
 
@@ -71,12 +72,14 @@ impl Worker {
         let (sender, receiver) = mpsc::channel();
         let receiver: mpsc::Receiver<VoiceEvent> = receiver;
         // Build output variables
-        let device = cpal::default_output_device()
+        let host = cpal::default_host();
+        let device = host
+            .default_output_device()
             .expect("Failed to get default output device building a voice pool.");
         let format = device
             .default_output_format()
             .expect("Failed to get default output format building a voice pool.");
-        let event_loop = cpal::EventLoop::new();
+        let event_loop = host.event_loop();
         let stream_id = event_loop
             .build_output_stream(&device, &format)
             .expect("Could not build output stream");
@@ -86,7 +89,15 @@ impl Worker {
         let mut voice_handler = VoiceHandler::new(voice, format.sample_rate.0);
 
         let thread = thread::spawn(move || {
-            event_loop.run(move |_, data| {
+            event_loop.run(move |stream_id, stream_result| {
+                let stream_data = match stream_result {
+                    Ok(data) => data,
+                    Err(err) => {
+                        eprintln!("an error occurred on stream {:?}: {}", stream_id, err);
+                        return;
+                    }
+                    _ => return,
+                };
                 let voice_event = receiver.try_recv();
                 if voice_event.is_ok() {
                     // we received a message
@@ -119,7 +130,7 @@ impl Worker {
                     };
                 }
                 // Stream data
-                match data {
+                match stream_data {
                     cpal::StreamData::Output {
                         buffer: cpal::UnknownTypeOutputBuffer::U16(mut buffer),
                     } => {

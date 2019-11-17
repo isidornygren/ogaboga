@@ -1,4 +1,3 @@
-extern crate noise;
 extern crate ogaboga;
 extern crate rand;
 

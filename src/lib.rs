@@ -17,11 +17,11 @@
 )]
 
 extern crate cpal;
-extern crate noise;
 extern crate rand;
 
 mod envelope;
 mod pulse_modulator;
+pub mod sequencer;
 mod voice;
 mod voice_pool;
 mod wave_generator;
