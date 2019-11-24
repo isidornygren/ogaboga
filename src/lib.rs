@@ -19,6 +19,7 @@
 extern crate cpal;
 extern crate rand;
 
+mod effects;
 mod envelope;
 mod pulse_modulator;
 pub mod sequencer;

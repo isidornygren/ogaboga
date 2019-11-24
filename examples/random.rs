@@ -12,7 +12,7 @@ fn main() {
 
     for _ in 0..3 {
         voice_pool_builder = voice_pool_builder.with_voice(Voice::new(
-            &triangle_wave,
+            Box::new(triangle_wave),
             Envelope::new(0.5, 0.5, 0.5, 0.5),
         ));
     }

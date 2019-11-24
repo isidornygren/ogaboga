@@ -70,7 +70,7 @@ impl PulseModulator {
             }
             Stage::Decay => {
                 self.amplitude -= self.dec_coef;
-                if self.amplitude < self.envelope.sustain {
+                if self.amplitude <= self.envelope.sustain {
                     self.amplitude = self.envelope.sustain;
                     self.stage = Stage::Sustain;
                 }

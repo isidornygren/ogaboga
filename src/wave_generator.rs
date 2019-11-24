@@ -1,16 +1,17 @@
 const PI_2: f32 = 2.0 * std::f32::consts::PI;
 
-pub type WaveForm = &'static (dyn Fn(f32) -> f32 + Sync);
+pub type WaveForm = &'static (dyn FnMut(f32) -> f32 + Sync);
+pub type WaveBox = Box<dyn FnMut(f32) -> f32 + Sync + Send>;
 
 pub struct WaveGenerator {
     sample_rate: u32,
-    waveform: WaveForm,
+    waveform: WaveBox,
     step_size: f32,
     current_step: f32,
 }
 
 impl WaveGenerator {
-    pub fn new(sample_rate: u32, freq: f32, waveform: WaveForm) -> Self {
+    pub fn new(sample_rate: u32, freq: f32, waveform: WaveBox) -> Self {
         let mut wave_struct = Self {
             sample_rate,
             waveform,
@@ -25,7 +26,7 @@ impl WaveGenerator {
         self.current_step = (self.current_step + self.step_size) % PI_2;
         return (self.waveform)(self.current_step);
     }
-    pub fn set_waveform(&mut self, waveform: WaveForm) {
+    pub fn set_waveform(&mut self, waveform: WaveBox) {
         self.waveform = waveform;
     }
     pub fn set_freq(&mut self, freq: f32) {

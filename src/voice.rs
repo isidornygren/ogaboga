@@ -1,17 +1,18 @@
+use crate::effects::Effect;
 use crate::pulse_modulator::PulseModulator;
-use crate::wave_generator::{WaveForm, WaveGenerator};
+use crate::wave_generator::{WaveBox, WaveForm, WaveGenerator};
 
 use crate::Envelope;
 
-#[derive(Copy, Clone)]
+// #[derive(Copy)]
 pub struct Voice {
-    waveform: WaveForm,
+    waveform: WaveBox,
     envelope: Envelope,
 }
 
 impl Voice {
     #[inline]
-    pub fn new(waveform: WaveForm, envelope: Envelope) -> Self {
+    pub fn new(waveform: WaveBox, envelope: Envelope) -> Self {
         return Self { waveform, envelope };
     }
 }
@@ -44,7 +45,7 @@ impl VoiceHandler {
     pub fn set_amp(&mut self, amp: f32) {
         self.amp = amp.min(1.0).max(0.0);
     }
-    pub fn set_waveform(&mut self, waveform: WaveForm) {
+    pub fn set_waveform(&mut self, waveform: WaveBox) {
         self.wave_gen.set_waveform(waveform);
     }
     pub fn pulse(&mut self) {

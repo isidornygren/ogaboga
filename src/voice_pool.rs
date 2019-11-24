@@ -3,8 +3,8 @@ use std::sync::{mpsc, mpsc::SendError};
 use std::thread;
 
 use crate::voice::{Voice, VoiceHandler};
+use crate::wave_generator::WaveBox;
 use crate::Envelope;
-use crate::WaveForm;
 
 pub enum VoiceEvent {
     ChangeFreq(f32),
@@ -14,7 +14,7 @@ pub enum VoiceEvent {
     Start,
     Stop,
     SetEnvelope(Envelope),
-    SetWaveForm(WaveForm),
+    SetWaveForm(WaveBox),
 }
 
 pub struct VoicePoolBuilder {
