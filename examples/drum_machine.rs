@@ -3,7 +3,7 @@ extern crate rand;
 
 use ogaboga::{
 	sequencer::{
-		generator::{BeatGenerator, SequenceGenerator},
+		generator::{BeatGenerator, SequenceGenerator, TuneGenerator},
 		SequenceStep, SequencerBuilder,
 	},
 	waveforms::{freq_noise, one_bit_noise, sawtooth_wave, square_wave, triangle_wave, white_noise},
@@ -26,33 +26,38 @@ fn main() {
 		Envelope::new(0.001, 0.1, 0.1, 0.1),
 	));
 	voice_pool_builder = voice_pool_builder.with_voice(Voice::new(
-		freq_noise(1.75),
-		Envelope::new(0.001, 0.1, 0.1, 0.1),
+		Box::new(square_wave),
+		Envelope::new(0.1, 0.5, 0.1, 0.1),
 	));
 	let voice_pool = voice_pool_builder.build();
 	voice_pool.send(VoiceEvent::ChangeFreq(50.0), 0).unwrap();
 	voice_pool.send(VoiceEvent::ChangeFreq(1000.0), 1).unwrap();
 	// voice_pool.send(VoiceEvent::ChangeAmp(1.0), 1).unwrap();
-	voice_pool.send(VoiceEvent::ChangeAmp(0.2), 2).unwrap();
+	voice_pool.send(VoiceEvent::ChangeAmp(0.1), 2).unwrap();
 
 	let sequencer_builder = SequencerBuilder::new(BPM);
 
 	let base_drum_generator = BeatGenerator::new()
 		.period_fraction(1.0 / 4.0)
-		.chance_range(0.1, 0.75);
+		.chance_range(0.0, 0.75)
+		.half_step_chance(Some(0.5));
 
 	let high_hat_generator = BeatGenerator::new()
 		.period_fraction(1.0 / 4.0)
-		.chance_range(0.25, 0.5)
+		.chance_range(0.0, 0.75)
 		.period_offset(std::f32::consts::PI)
 		.half_step_chance(Some(0.5));
 
+	let tune_generator = TuneGenerator {};
+
 	let base_drum_sequence = base_drum_generator.generate(8);
 	let high_hat_sequence = high_hat_generator.generate(8);
+	let tune_sequence = tune_generator.generate(8);
 
 	let mut sequencer = sequencer_builder
 		.add_sequence(base_drum_sequence.clone())
 		.add_sequence(high_hat_sequence.clone())
+		.add_sequence(tune_sequence.clone())
 		.build();
 
 	sequencer.run_then(
@@ -60,13 +65,23 @@ fn main() {
 			Some(SequenceStep::Beat) => {
 				voice_pool.send(VoiceEvent::Pulse, index).unwrap();
 			}
+			Some(SequenceStep::Freq(freq)) => {
+				voice_pool
+					.send(VoiceEvent::PulseFreq(*freq), index)
+					.unwrap();
+			}
 			_ => {}
 		},
 		|index, sequence| {
 			if index == 0 {
+				// only mutating the base value a little bit every time
 				return base_drum_generator.mutate(&base_drum_sequence, 0.2);
 			} else if index == 1 {
-				return high_hat_generator.mutate(&high_hat_sequence, 0.2);
+				// continously mutating the value
+				return high_hat_generator.mutate(sequence, 0.5);
+			} else if index == 2 {
+				// continously mutating the value
+				return tune_generator.mutate(&tune_sequence, 0.2);
 			} else {
 				return sequence.clone();
 			}
