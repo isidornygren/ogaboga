@@ -2,14 +2,17 @@ extern crate ogaboga;
 extern crate rand;
 
 use ogaboga::{
-	sequencer::{SequenceBuilder, SequenceStep, SequencerBuilder},
+	sequencer::{
+		generator::{BeatGenerator, SequenceGenerator},
+		SequenceStep, SequencerBuilder,
+	},
 	waveforms::{freq_noise, one_bit_noise, sawtooth_wave, square_wave, triangle_wave, white_noise},
 	Envelope, Voice, VoiceEvent, VoicePoolBuilder,
 };
 use rand::Rng;
 use std::{thread, time};
 
-const BPM: u16 = 320;
+const BPM: u16 = 240;
 
 fn main() {
 	// Initiate the voice pool that we will initiate voices in
@@ -19,7 +22,7 @@ fn main() {
 		Envelope::new(0.001, 0.1, 0.1, 0.1),
 	));
 	voice_pool_builder = voice_pool_builder.with_voice(Voice::new(
-		freq_noise(0.1),
+		freq_noise(0.25),
 		Envelope::new(0.001, 0.1, 0.1, 0.1),
 	));
 	voice_pool_builder = voice_pool_builder.with_voice(Voice::new(
@@ -34,30 +37,39 @@ fn main() {
 
 	let sequencer_builder = SequencerBuilder::new(BPM);
 
-	let sequencer = sequencer_builder
-		.add_sequence(
-			SequenceBuilder::new(7)
-				// .allow_half_steps(0.25)
-				.beat_sin(1.0 / 4.0, 0.1, 0.75, 0.0)
-				.build(),
-		)
-		.add_sequence(
-			SequenceBuilder::new(13)
-				.beat_sin(1.0 / 8.0, 0.25, 0.5, std::f32::consts::PI)
-				.build(),
-		)
-		.add_sequence(
-			SequenceBuilder::new(17)
-				.allow_half_steps(0.25)
-				.beat_sin(1.0 / 4.0, 0.1, 0.75, 0.0)
-				.build(),
-		)
+	let base_drum_generator = BeatGenerator::new()
+		.period_fraction(1.0 / 4.0)
+		.chance_range(0.1, 0.75);
+
+	let high_hat_generator = BeatGenerator::new()
+		.period_fraction(1.0 / 4.0)
+		.chance_range(0.25, 0.5)
+		.period_offset(std::f32::consts::PI)
+		.half_step_chance(Some(0.5));
+
+	let base_drum_sequence = base_drum_generator.generate(8);
+	let high_hat_sequence = high_hat_generator.generate(8);
+
+	let mut sequencer = sequencer_builder
+		.add_sequence(base_drum_sequence.clone())
+		.add_sequence(high_hat_sequence.clone())
 		.build();
 
-	sequencer.run(|index, step| match step {
-		Some(SequenceStep::Beat) => {
-			voice_pool.send(VoiceEvent::Pulse, index).unwrap();
-		}
-		_ => {}
-	});
+	sequencer.run_then(
+		|index, step| match step {
+			Some(SequenceStep::Beat) => {
+				voice_pool.send(VoiceEvent::Pulse, index).unwrap();
+			}
+			_ => {}
+		},
+		|index, sequence| {
+			if index == 0 {
+				return base_drum_generator.mutate(&base_drum_sequence, 0.2);
+			} else if index == 1 {
+				return high_hat_generator.mutate(&high_hat_sequence, 0.2);
+			} else {
+				return sequence.clone();
+			}
+		},
+	);
 }
