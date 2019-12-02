@@ -1,4 +1,7 @@
-use crate::sequencer::{Sequence, SequenceStep};
+use crate::{
+	scale::notes::Note,
+	sequencer::{Sequence, SequenceStep},
+};
 use rand::{thread_rng, Rng};
 
 pub trait SequenceGenerator {
@@ -129,14 +132,22 @@ impl SequenceGenerator for BeatGenerator {
 	}
 }
 
-pub struct TuneGenerator;
+pub struct TuneGenerator {
+	scale: Vec<Note>,
+}
+
+impl TuneGenerator {
+	pub const fn new(scale: Vec<Note>) -> Self {
+		return Self { scale };
+	}
+}
 
 impl SequenceGenerator for TuneGenerator {
 	#[inline]
-	fn generate_step(&self, index: usize, len: usize) -> SequenceStep {
+	fn generate_step(&self, _index: usize, _len: usize) -> SequenceStep {
 		let mut rng = thread_rng();
-		return if rng.gen_bool(0.75) {
-			SequenceStep::Freq(rng.gen_range(200.0, 1000.0))
+		return if rng.gen_bool(0.9) {
+			SequenceStep::Freq(self.scale[rng.gen_range(0, self.scale.len())].get_freq(2) as f32)
 		} else {
 			SequenceStep::None
 		};

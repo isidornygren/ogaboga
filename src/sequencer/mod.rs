@@ -17,7 +17,8 @@ pub enum SequenceStep {
 pub type Sequence = Vec<SequenceStep>;
 
 pub struct Sequencer {
-	sequences: Vec<Sequence>,
+	// (Sequence, Steps per beat)
+	sequences: Vec<(Sequence, u8)>,
 	bpm_s: f64,
 }
 
@@ -32,7 +33,7 @@ impl Sequencer {
 		let mut start_time = Instant::now();
 
 		loop {
-			for (index, sequence) in self.sequences.iter().enumerate() {
+			for (index, (sequence, steps_per_beat)) in self.sequences.iter().enumerate() {
 				let mod_index = seq_index % sequence.len();
 				func(index, sequence.get(mod_index));
 			}
@@ -54,7 +55,7 @@ impl Sequencer {
 		let mut start_time = Instant::now();
 
 		loop {
-			for (index, sequence) in self.sequences.iter_mut().enumerate() {
+			for (index, (sequence, steps_per_beat)) in self.sequences.iter_mut().enumerate() {
 				let mod_index = seq_index % sequence.len();
 				if mod_index == 0 {
 					*sequence = sequence_mutator(index, sequence);
@@ -71,7 +72,7 @@ impl Sequencer {
 
 pub struct SequencerBuilder {
 	bpm: u16,
-	sequences: Vec<Sequence>,
+	sequences: Vec<(Sequence, u8)>,
 }
 
 impl SequencerBuilder {
@@ -84,8 +85,8 @@ impl SequencerBuilder {
 	}
 
 	#[inline]
-	pub fn add_sequence(mut self, sequence: Sequence) -> Self {
-		self.sequences.push(sequence);
+	pub fn add_sequence(mut self, sequence: Sequence, steps_per_beat: u8) -> Self {
+		self.sequences.push((sequence, steps_per_beat));
 		return self;
 	}
 

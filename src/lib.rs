@@ -22,6 +22,7 @@ extern crate rand;
 mod effects;
 mod envelope;
 mod pulse_modulator;
+pub mod scale;
 pub mod sequencer;
 mod voice;
 mod voice_pool;

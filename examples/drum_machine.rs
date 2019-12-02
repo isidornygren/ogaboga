@@ -2,6 +2,7 @@ extern crate ogaboga;
 extern crate rand;
 
 use ogaboga::{
+	scale::F_MINOR,
 	sequencer::{
 		generator::{BeatGenerator, SequenceGenerator, TuneGenerator},
 		SequenceStep, SequencerBuilder,
@@ -12,7 +13,7 @@ use ogaboga::{
 use rand::Rng;
 use std::{thread, time};
 
-const BPM: u16 = 240;
+const BPM: u16 = 40;
 
 fn main() {
 	// Initiate the voice pool that we will initiate voices in
@@ -26,38 +27,38 @@ fn main() {
 		Envelope::new(0.001, 0.1, 0.1, 0.1),
 	));
 	voice_pool_builder = voice_pool_builder.with_voice(Voice::new(
-		Box::new(square_wave),
-		Envelope::new(0.1, 0.5, 0.1, 0.1),
+		Box::new(sawtooth_wave),
+		Envelope::new(0.1, 0.6, 0.6, 0.6),
 	));
 	let voice_pool = voice_pool_builder.build();
 	voice_pool.send(VoiceEvent::ChangeFreq(50.0), 0).unwrap();
 	voice_pool.send(VoiceEvent::ChangeFreq(1000.0), 1).unwrap();
 	// voice_pool.send(VoiceEvent::ChangeAmp(1.0), 1).unwrap();
-	voice_pool.send(VoiceEvent::ChangeAmp(0.1), 2).unwrap();
+	voice_pool.send(VoiceEvent::ChangeAmp(0.2), 2).unwrap();
 
 	let sequencer_builder = SequencerBuilder::new(BPM);
 
 	let base_drum_generator = BeatGenerator::new()
-		.period_fraction(1.0 / 4.0)
+		.period_fraction(1.0 / 2.0)
 		.chance_range(0.0, 0.75)
 		.half_step_chance(Some(0.5));
 
 	let high_hat_generator = BeatGenerator::new()
-		.period_fraction(1.0 / 4.0)
+		.period_fraction(1.0 / 2.0)
 		.chance_range(0.0, 0.75)
 		.period_offset(std::f32::consts::PI)
 		.half_step_chance(Some(0.5));
 
-	let tune_generator = TuneGenerator {};
+	let tune_generator = TuneGenerator::new(F_MINOR.to_vec());
 
 	let base_drum_sequence = base_drum_generator.generate(8);
 	let high_hat_sequence = high_hat_generator.generate(8);
-	let tune_sequence = tune_generator.generate(8);
+	let tune_sequence = tune_generator.generate(4);
 
 	let mut sequencer = sequencer_builder
-		.add_sequence(base_drum_sequence.clone())
-		.add_sequence(high_hat_sequence.clone())
-		.add_sequence(tune_sequence.clone())
+		.add_sequence(base_drum_sequence.clone(), 2)
+		.add_sequence(high_hat_sequence.clone(), 2)
+		.add_sequence(tune_sequence.clone(), 1)
 		.build();
 
 	sequencer.run_then(
@@ -80,7 +81,7 @@ fn main() {
 				// continously mutating the value
 				return high_hat_generator.mutate(sequence, 0.5);
 			} else if index == 2 {
-				// continously mutating the value
+				// only mutating the base value a little bit every time
 				return tune_generator.mutate(&tune_sequence, 0.2);
 			} else {
 				return sequence.clone();
