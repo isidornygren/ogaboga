@@ -35,6 +35,7 @@ impl VoicePoolBuilder {
       return self;
    }
 
+   #[must_use]
    #[inline]
    pub fn build(self) -> VoicePool {
       return VoicePool::new(self.voices.into_iter().map(Worker::new).collect());

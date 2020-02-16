@@ -14,7 +14,7 @@ pub struct PulseModulator {
    clock:       f32,
    amplitude:   f32,
    envelope:    Envelope,
-   sample_rate: u32,
+   sample_rate: f32,
    stage:       Stage,
    active:      bool,
    // These are the coefficients from
@@ -25,7 +25,7 @@ pub struct PulseModulator {
 }
 
 impl PulseModulator {
-   pub fn new(envelope: Envelope, sample_rate: u32) -> Self {
+   pub fn new(envelope: Envelope, sample_rate: f32) -> Self {
       let mut pulse_modulator = Self {
          clock: 0.0,
          amplitude: 0.0,
@@ -47,10 +47,9 @@ impl PulseModulator {
    }
 
    fn calc_envelope_coef(&mut self) {
-      self.att_coef = 1.0 / (self.sample_rate as f32 * self.envelope.attack);
-      self.dec_coef =
-         (1.0 - self.envelope.sustain) / (self.sample_rate as f32 * self.envelope.decay);
-      self.rel_coef = self.envelope.sustain / (self.sample_rate as f32 * self.envelope.release);
+      self.att_coef = 1.0 / (self.sample_rate * self.envelope.attack);
+      self.dec_coef = (1.0 - self.envelope.sustain) / (self.sample_rate * self.envelope.decay);
+      self.rel_coef = self.envelope.sustain / (self.sample_rate * self.envelope.release);
    }
 
    pub fn start(&mut self) {
@@ -108,17 +107,17 @@ mod tests {
 
    #[test]
    fn calculates_attack_coef() {
-      let p_m = PulseModulator::new(ENVELOPE, 10);
+      let p_m = PulseModulator::new(ENVELOPE, 10.0);
       assert_eq!(p_m.att_coef, 0.1);
    }
    #[test]
    fn calculates_decay_coef() {
-      let p_m = PulseModulator::new(ENVELOPE, 10);
+      let p_m = PulseModulator::new(ENVELOPE, 10.0);
       assert_eq!(p_m.dec_coef, 0.25);
    }
    #[test]
    fn calculates_release_coef() {
-      let p_m = PulseModulator::new(ENVELOPE, 10);
+      let p_m = PulseModulator::new(ENVELOPE, 10.0);
       assert_eq!(p_m.rel_coef, 0.025);
    }
 }

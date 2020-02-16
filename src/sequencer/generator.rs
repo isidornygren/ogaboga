@@ -18,7 +18,7 @@ pub trait SequenceGenerator {
          .enumerate()
          .map(|(index, _)| {
             let is_half_step = ((index + 1) % 2) == 0;
-            if (is_half_step) {
+            if is_half_step {
                self.generate_half_step(index, sequence_length)
             } else {
                self.generate_step(index, sequence_length)
@@ -56,6 +56,7 @@ pub struct BeatGenerator {
 }
 
 impl BeatGenerator {
+   #[must_use]
    #[inline]
    pub const fn new() -> Self {
       Self {
@@ -67,12 +68,14 @@ impl BeatGenerator {
       }
    }
 
+   #[must_use]
    #[inline]
    pub const fn period_fraction(mut self, fraction: f32) -> Self {
       self.fraction = fraction;
       self
    }
 
+   #[must_use]
    #[inline]
    pub const fn chance_range(mut self, chance_min: f32, chance_max: f32) -> Self {
       self.min = chance_min;
@@ -80,18 +83,21 @@ impl BeatGenerator {
       self
    }
 
+   #[must_use]
    #[inline]
    pub const fn period_offset(mut self, period_offset: f32) -> Self {
       self.period_offset = period_offset;
       self
    }
 
+   #[must_use]
    #[inline]
    pub const fn half_step_chance(mut self, half_step_chance: Option<f32>) -> Self {
       self.half_step_chance = half_step_chance;
       self
    }
 
+   #[must_use]
    #[inline]
    pub fn get_current_chance(&self, index: usize, len: usize) -> f32 {
       let period = self.fraction * len as f32;
@@ -139,6 +145,8 @@ pub struct TuneGenerator {
 }
 
 impl TuneGenerator {
+   #[must_use]
+   #[inline]
    pub const fn new(scale: Vec<Note>) -> Self { return Self { scale }; }
 }
 

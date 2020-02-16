@@ -17,14 +17,15 @@ pub enum Note {
 }
 
 impl Note {
+   #[must_use]
+   #[inline]
    pub fn get_freq(&self, octave: u16) -> f64 {
       // const key = note
-      let mut new_note: i64 = 0;
-      if (self.clone() as u32) < 3 {
-         new_note = (self.clone() as i64) + 12 + ((octave as i64 - 1) * 12) + 1;
+      let new_note = if (self.clone() as u32) < 3 {
+         (self.clone() as i64) + 12 + ((octave as i64 - 1) * 12) + 1
       } else {
-         new_note = (self.clone() as i64) + ((octave as i64 - 1) * 12) + 1;
-      }
+         (self.clone() as i64) + ((octave as i64 - 1) * 12) + 1
+      };
 
       // Return frequency of note
       return A4 * 2.0_f64.powf((new_note as f64 - 49.0) / 12.0);

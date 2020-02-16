@@ -32,7 +32,7 @@ impl Sequencer {
       let mut start_time = Instant::now();
 
       loop {
-         for (index, (sequence, steps_per_beat)) in self.sequences.iter().enumerate() {
+         for (index, (sequence, _steps_per_beat)) in self.sequences.iter().enumerate() {
             let mod_index = seq_index % sequence.len();
             func(index, sequence.get(mod_index));
          }
@@ -53,7 +53,7 @@ impl Sequencer {
       let mut start_time = Instant::now();
 
       loop {
-         for (index, (sequence, steps_per_beat)) in self.sequences.iter_mut().enumerate() {
+         for (index, (sequence, _steps_per_beat)) in self.sequences.iter_mut().enumerate() {
             let mod_index = seq_index % sequence.len();
             if mod_index == 0 {
                *sequence = sequence_mutator(index, sequence);
@@ -74,6 +74,7 @@ pub struct SequencerBuilder {
 }
 
 impl SequencerBuilder {
+   #[must_use]
    #[inline]
    pub fn new(bpm: u16) -> Self {
       return Self {
@@ -82,12 +83,14 @@ impl SequencerBuilder {
       };
    }
 
+   #[must_use]
    #[inline]
    pub fn add_sequence(mut self, sequence: Sequence, steps_per_beat: u8) -> Self {
       self.sequences.push((sequence, steps_per_beat));
       return self;
    }
 
+   #[must_use]
    #[inline]
    pub fn build(self) -> Sequencer {
       return Sequencer {

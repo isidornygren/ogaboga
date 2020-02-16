@@ -7,6 +7,7 @@ pub struct Envelope {
 }
 
 impl Envelope {
+   #[must_use]
    #[inline]
    pub const fn new(attack: f32, decay: f32, sustain: f32, release: f32) -> Self {
       return Self {
