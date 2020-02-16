@@ -1,19 +1,19 @@
 #![warn(
-	clippy::all,
-	clippy::restriction,
-	clippy::pedantic,
-	clippy::nursery,
-	clippy::cargo
+   clippy::all,
+   clippy::restriction,
+   clippy::pedantic,
+   clippy::nursery,
+   clippy::cargo
 )]
 #![allow(
-	clippy::needless_return,
-	clippy::missing_docs_in_private_items,
-	clippy::float_arithmetic,
-	clippy::clone_on_ref_ptr,
-	clippy::implicit_return,
-	clippy::integer_arithmetic,
-	clippy::module_name_repetitions,
-	clippy::else_if_without_else
+   clippy::needless_return,
+   clippy::missing_docs_in_private_items,
+   clippy::float_arithmetic,
+   clippy::clone_on_ref_ptr,
+   clippy::implicit_return,
+   clippy::integer_arithmetic,
+   clippy::module_name_repetitions,
+   clippy::else_if_without_else
 )]
 
 extern crate cpal;
@@ -30,7 +30,9 @@ mod wave_generator;
 
 pub mod waveforms;
 
-pub use crate::envelope::Envelope;
-pub use crate::voice::Voice;
-pub use crate::voice_pool::{VoiceEvent, VoicePool, VoicePoolBuilder};
-pub use crate::wave_generator::WaveForm;
+pub use crate::{
+   envelope::Envelope,
+   voice::Voice,
+   voice_pool::{VoiceEvent, VoicePool, VoicePoolBuilder},
+   wave_generator::WaveForm,
+};
