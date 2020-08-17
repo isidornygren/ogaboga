@@ -3,22 +3,21 @@ extern crate rand;
 
 use ogaboga::{
    waveforms::{sawtooth_wave, square_wave, triangle_wave},
-   Envelope, Voice, VoiceEvent, VoicePoolBuilder,
+   Envelope, Voice, VoiceEvent, VoicePool,
 };
 use rand::Rng;
 use std::{thread, time};
 
 fn main() {
    // Initiate the voice pool that we will initiate voices in
-   let mut voice_pool_builder = VoicePoolBuilder::new();
+   let mut voice_pool = VoicePool::new();
 
-   for _ in 0 .. 3 {
-      voice_pool_builder = voice_pool_builder.with_voice(Voice::new(
+   for _ in 0..3 {
+      voice_pool.add_voice(Voice::new(
          Box::new(triangle_wave),
          Envelope::new(0.5, 0.5, 0.5, 0.5),
       ));
    }
-   let voice_pool = voice_pool_builder.build();
 
    // loop {
    // let sleep_time = time::Duration::from_millis(1000);

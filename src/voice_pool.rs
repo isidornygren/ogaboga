@@ -21,38 +21,20 @@ pub enum VoiceEvent {
    SetWaveForm(WaveBox),
 }
 
-pub struct VoicePoolBuilder {
-   voices: Vec<Voice>,
-}
-
-impl VoicePoolBuilder {
-   #[inline]
-   pub fn new() -> Self { return Self::default(); }
-
-   #[inline]
-   pub fn with_voice(mut self, voice: Voice) -> Self {
-      self.voices.push(voice);
-      return self;
-   }
-
-   #[must_use]
-   #[inline]
-   pub fn build(self) -> VoicePool {
-      return VoicePool::new(self.voices.into_iter().map(Worker::new).collect());
-   }
-}
-
-impl std::default::Default for VoicePoolBuilder {
-   #[inline]
-   fn default() -> Self { return Self { voices: vec![] }; }
-}
-
 pub struct VoicePool {
    workers: Vec<Worker>,
 }
 
 impl VoicePool {
-   const fn new(workers: Vec<Worker>) -> Self { return Self { workers }; }
+   pub const fn new() -> Self {
+      return Self {
+         workers: Vec::new(),
+      };
+   }
+
+   pub fn add_voice(&mut self, voice: Voice) {
+      self.workers.push(Worker::new(voice));
+   }
 
    #[inline]
    pub fn send(&self, event: VoiceEvent, id: usize) -> Result<(), SendError<VoiceEvent>> {
@@ -96,38 +78,37 @@ impl Worker {
                Err(err) => {
                   eprintln!("an error occurred on stream {:?}: {}", stream_id, err);
                   return;
-               },
+               }
                _ => return,
             };
             let voice_event = receiver.try_recv();
             if voice_event.is_ok() {
-               // we received a message
                match voice_event.expect("Could not unwrap voice event") {
                   VoiceEvent::ChangeFreq(freq) => {
                      voice_handler.set_freq(freq);
-                  },
+                  }
                   VoiceEvent::ChangeAmp(amp) => {
                      voice_handler.set_amp(amp);
-                  },
+                  }
                   VoiceEvent::PulseFreq(freq) => {
                      voice_handler.set_freq(freq);
                      voice_handler.pulse();
-                  },
+                  }
                   VoiceEvent::Pulse => {
                      voice_handler.pulse();
-                  },
+                  }
                   VoiceEvent::Start => {
                      voice_handler.start();
-                  },
+                  }
                   VoiceEvent::Stop => {
                      voice_handler.stop();
-                  },
+                  }
                   VoiceEvent::SetEnvelope(envelope) => {
                      voice_handler.set_envelope(envelope);
-                  },
+                  }
                   VoiceEvent::SetWaveForm(waveform) => {
                      voice_handler.set_waveform(waveform);
-                  },
+                  }
                };
             }
             // Stream data
@@ -142,7 +123,7 @@ impl Worker {
                         *out = value;
                      }
                   }
-               },
+               }
                cpal::StreamData::Output {
                   buffer: cpal::UnknownTypeOutputBuffer::I16(mut buffer),
                } => {
@@ -152,7 +133,7 @@ impl Worker {
                         *out = value;
                      }
                   }
-               },
+               }
                cpal::StreamData::Output {
                   buffer: cpal::UnknownTypeOutputBuffer::F32(mut buffer),
                } => {
@@ -162,7 +143,7 @@ impl Worker {
                         *out = value;
                      }
                   }
-               },
+               }
                _ => (),
             }
          });

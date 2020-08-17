@@ -26,13 +26,13 @@ pub mod scale;
 pub mod sequencer;
 mod voice;
 mod voice_pool;
-mod wave_generator;
+pub mod wave_generator;
 
 pub mod waveforms;
 
 pub use crate::{
    envelope::Envelope,
    voice::Voice,
-   voice_pool::{VoiceEvent, VoicePool, VoicePoolBuilder},
+   voice_pool::{VoiceEvent, VoicePool},
    wave_generator::WaveForm,
 };

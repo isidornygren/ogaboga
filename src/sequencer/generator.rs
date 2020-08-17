@@ -1,13 +1,14 @@
 use crate::{
    scale::notes::Note,
    sequencer::{Sequence, SequenceStep},
+   wave_generator::WaveGenerator,
 };
 use rand::{thread_rng, Rng};
 
 pub trait SequenceGenerator {
    fn generate_step(&self, index: usize, len: usize) -> SequenceStep;
    #[inline]
-   fn generate_half_step(&self, index: usize, len: usize) -> SequenceStep {
+   fn generate_half_step(&self, _index: usize, _len: usize) -> SequenceStep {
       return SequenceStep::None;
    }
    #[inline]
@@ -48,10 +49,10 @@ pub trait SequenceGenerator {
 }
 
 pub struct BeatGenerator {
-   fraction:         f32,
-   min:              f32,
-   max:              f32,
-   period_offset:    f32,
+   fraction: f32,
+   min: f32,
+   max: f32,
+   period_offset: f32,
    half_step_chance: Option<f32>,
 }
 
@@ -60,10 +61,10 @@ impl BeatGenerator {
    #[inline]
    pub const fn new() -> Self {
       Self {
-         fraction:         0.25,
-         min:              0.0,
-         max:              1.0,
-         period_offset:    0.0,
+         fraction: 0.25,
+         min: 0.0,
+         max: 1.0,
+         period_offset: 0.0,
          half_step_chance: None,
       }
    }
@@ -102,11 +103,11 @@ impl BeatGenerator {
    pub fn get_current_chance(&self, index: usize, len: usize) -> f32 {
       let period = self.fraction * len as f32;
       let current = index as f32 % period;
-      return (((current * (std::f32::consts::PI * 2.0 + self.period_offset) / period).sin() +
-         1.0) /
-         2.0) *
-         (self.max - self.min) +
-         self.min;
+      return (((current * (std::f32::consts::PI * 2.0 + self.period_offset) / period).sin()
+         + 1.0)
+         / 2.0)
+         * (self.max - self.min)
+         + self.min;
    }
 }
 
@@ -147,7 +148,9 @@ pub struct TuneGenerator {
 impl TuneGenerator {
    #[must_use]
    #[inline]
-   pub const fn new(scale: Vec<Note>) -> Self { return Self { scale }; }
+   pub const fn new(scale: Vec<Note>) -> Self {
+      return Self { scale };
+   }
 }
 
 impl SequenceGenerator for TuneGenerator {

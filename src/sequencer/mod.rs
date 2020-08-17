@@ -19,14 +19,15 @@ pub type Sequence = Vec<SequenceStep>;
 pub struct Sequencer {
    // (Sequence, Steps per beat)
    sequences: Vec<(Sequence, u8)>,
-   bpm_s:     f64,
+   bpm_s: f64,
 }
 
 impl Sequencer {
    #[inline]
    pub fn run<F>(&self, func: F)
    where
-      F: Fn(usize, Option<&SequenceStep>), {
+      F: Fn(usize, Option<&SequenceStep>),
+   {
       let sleep_time = Duration::from_secs_f64(self.bpm_s);
       let mut seq_index = 0;
       let mut start_time = Instant::now();
@@ -43,11 +44,20 @@ impl Sequencer {
       }
    }
 
+   pub fn set_bpm(&mut self, bpm_s: f64) {
+      self.bpm_s = bpm_s;
+   }
+
+   pub fn set_sequence(&mut self, sequences: Vec<(Sequence, u8)>) {
+      self.sequences = sequences;
+   }
+
    #[inline]
    pub fn run_then<F, G>(&mut self, func: F, sequence_mutator: G)
    where
       F: Fn(usize, Option<&SequenceStep>),
-      G: Fn(usize, &Sequence) -> Sequence, {
+      G: Fn(usize, &Sequence) -> Sequence,
+   {
       let sleep_time = Duration::from_secs_f64(self.bpm_s);
       let mut seq_index = 0;
       let mut start_time = Instant::now();
@@ -69,7 +79,7 @@ impl Sequencer {
 }
 
 pub struct SequencerBuilder {
-   bpm:       u16,
+   bpm: u16,
    sequences: Vec<(Sequence, u8)>,
 }
 
@@ -94,7 +104,7 @@ impl SequencerBuilder {
    #[inline]
    pub fn build(self) -> Sequencer {
       return Sequencer {
-         bpm_s:     (60.0 / f64::from(self.bpm)) / 2.0,
+         bpm_s: (60.0 / f64::from(self.bpm)) / 2.0,
          sequences: self.sequences,
       };
    }
