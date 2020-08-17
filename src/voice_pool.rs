@@ -22,7 +22,7 @@ pub enum VoiceEvent {
 }
 
 pub struct VoicePool {
-   workers: Vec<Worker>,
+   workers: Vec<VoiceThread>,
 }
 
 impl VoicePool {
@@ -33,7 +33,7 @@ impl VoicePool {
    }
 
    pub fn add_voice(&mut self, voice: Voice) {
-      self.workers.push(Worker::new(voice));
+      self.workers.push(VoiceThread::new(voice));
    }
 
    #[inline]
@@ -44,12 +44,12 @@ impl VoicePool {
 }
 
 #[allow(dead_code)]
-struct Worker {
+struct VoiceThread {
    thread: thread::JoinHandle<()>,
    sender: mpsc::Sender<VoiceEvent>,
 }
 
-impl Worker {
+impl VoiceThread {
    pub fn new(voice: Voice) -> Self {
       // Build event actions
       let (sender, receiver) = mpsc::channel();
