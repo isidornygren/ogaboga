@@ -1,12 +1,7 @@
 extern crate ogaboga;
 extern crate rand;
 
-use ogaboga::{
-   waveforms::{sawtooth_wave, square_wave, triangle_wave},
-   Envelope, Voice, VoiceEvent, VoicePool,
-};
-use rand::Rng;
-use std::{thread, time};
+use ogaboga::{waveforms::triangle_wave, Envelope, Voice, VoiceEvent, VoicePool};
 
 fn main() {
    // Initiate the voice pool that we will initiate voices in

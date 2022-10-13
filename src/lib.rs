@@ -15,24 +15,25 @@
    clippy::module_name_repetitions,
    clippy::else_if_without_else
 )]
+// #![feature(iterator_fold_self)]
+// #![feature(duration_zero)]
 
 extern crate cpal;
 extern crate rand;
 
-mod effects;
 mod envelope;
 mod pulse_modulator;
+mod rhythm;
 pub mod scale;
 pub mod sequencer;
 mod voice;
-mod voice_pool;
 pub mod wave_generator;
 
 pub mod waveforms;
 
 pub use crate::{
    envelope::Envelope,
-   voice::Voice,
-   voice_pool::{VoiceEvent, VoicePool},
+   rhythm::{PolyRhythmController, RhythmController},
+   voice::{pool::VoicePool, thread::VoiceEvent, Voice},
    wave_generator::WaveForm,
 };

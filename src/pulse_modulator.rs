@@ -11,17 +11,17 @@ enum Stage {
 
 #[derive(Debug, Copy, Clone)]
 pub struct PulseModulator {
-   clock:       f32,
-   amplitude:   f32,
-   envelope:    Envelope,
+   clock: f32,
+   amplitude: f32,
+   envelope: Envelope,
    sample_rate: f32,
-   stage:       Stage,
-   active:      bool,
+   stage: Stage,
+   active: bool,
    // These are the coefficients from
    // the envelope function
-   att_coef:    f32,
-   dec_coef:    f32,
-   rel_coef:    f32,
+   att_coef: f32,
+   dec_coef: f32,
+   rel_coef: f32,
 }
 
 impl PulseModulator {
@@ -58,7 +58,9 @@ impl PulseModulator {
       self.active = true;
    }
 
-   pub fn stop(&mut self) { self.active = false; }
+   pub fn stop(&mut self) {
+      self.active = false;
+   }
 
    pub fn next(&mut self) -> f32 {
       self.clock += 1.0;
@@ -69,27 +71,27 @@ impl PulseModulator {
                self.amplitude = 1.0;
                self.stage = Stage::Decay;
             }
-         },
+         }
          Stage::Decay => {
             self.amplitude -= self.dec_coef;
             if self.amplitude <= self.envelope.sustain {
                self.amplitude = self.envelope.sustain;
                self.stage = Stage::Sustain;
             }
-         },
+         }
          Stage::Sustain => {
             if !self.active {
                self.stage = Stage::Release;
             }
-         },
+         }
          Stage::Release => {
             self.amplitude -= self.rel_coef;
             if self.amplitude < 0.0 {
                self.amplitude = 0.0;
                self.stage = Stage::None;
             }
-         },
-         Stage::None => {},
+         }
+         Stage::None => {}
       };
       return self.amplitude;
    }
@@ -99,8 +101,8 @@ impl PulseModulator {
 mod tests {
    use super::*;
    const ENVELOPE: Envelope = Envelope {
-      attack:  1.0,
-      decay:   0.2,
+      attack: 1.0,
+      decay: 0.2,
       sustain: 0.5,
       release: 2.0,
    };

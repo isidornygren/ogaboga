@@ -28,6 +28,6 @@ impl Note {
       };
 
       // Return frequency of note
-      return A4 * 2.0_f64.powf((new_note as f64 - 49.0) / 12.0);
+      return A4 * ((new_note as f64 - 49.0) / 12.0).exp2();
    }
 }

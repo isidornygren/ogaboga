@@ -1,32 +1,21 @@
 use crate::{
    scale::notes::Note,
    sequencer::{Sequence, SequenceStep},
-   wave_generator::WaveGenerator,
 };
 use rand::{thread_rng, Rng};
 
 pub trait SequenceGenerator {
    fn generate_step(&self, index: usize, len: usize) -> SequenceStep;
-   #[inline]
-   fn generate_half_step(&self, _index: usize, _len: usize) -> SequenceStep {
-      return SequenceStep::None;
-   }
+
    #[inline]
    fn generate(&self, sequence_length: usize) -> Sequence {
-      // 2 times the length to allow for half steps
       return vec![SequenceStep::None; sequence_length * 2]
          .iter()
          .enumerate()
-         .map(|(index, _)| {
-            let is_half_step = ((index + 1) % 2) == 0;
-            if is_half_step {
-               self.generate_half_step(index, sequence_length)
-            } else {
-               self.generate_step(index, sequence_length)
-            }
-         })
+         .map(|(index, _)| self.generate_step(index, sequence_length))
          .collect();
    }
+
    /// Mutates a sequence with the same rules as the sequence generator.
    /// Iterates through the sequence and generates a random number for every
    /// Sequence node and will generate a new node if the generated number is
@@ -53,7 +42,6 @@ pub struct BeatGenerator {
    min: f32,
    max: f32,
    period_offset: f32,
-   half_step_chance: Option<f32>,
 }
 
 impl BeatGenerator {
@@ -65,7 +53,6 @@ impl BeatGenerator {
          min: 0.0,
          max: 1.0,
          period_offset: 0.0,
-         half_step_chance: None,
       }
    }
 
@@ -93,41 +80,18 @@ impl BeatGenerator {
 
    #[must_use]
    #[inline]
-   pub const fn half_step_chance(mut self, half_step_chance: Option<f32>) -> Self {
-      self.half_step_chance = half_step_chance;
-      self
-   }
-
-   #[must_use]
-   #[inline]
    pub fn get_current_chance(&self, index: usize, len: usize) -> f32 {
       let period = self.fraction * len as f32;
       let current = index as f32 % period;
-      return (((current * (std::f32::consts::PI * 2.0 + self.period_offset) / period).sin()
+      return (((current * (std::f32::consts::PI.mul_add(2.0, self.period_offset)) / period)
+         .sin()
          + 1.0)
          / 2.0)
-         * (self.max - self.min)
-         + self.min;
+         .mul_add(self.max - self.min, self.min);
    }
 }
 
 impl SequenceGenerator for BeatGenerator {
-   #[inline]
-   fn generate_half_step(&self, index: usize, len: usize) -> SequenceStep {
-      let mut rng = thread_rng();
-      let current_chance = self.get_current_chance(index, len);
-      if let Some(half_step_chance) = self.half_step_chance {
-         let half_step_rng = current_chance as f32 * half_step_chance;
-         return if rng.gen_bool(f64::from(half_step_rng)) {
-            SequenceStep::Beat
-         } else {
-            SequenceStep::None
-         };
-      } else {
-         return SequenceStep::None;
-      }
-   }
-
    #[inline]
    fn generate_step(&self, index: usize, len: usize) -> SequenceStep {
       let mut rng = thread_rng();
@@ -143,13 +107,14 @@ impl SequenceGenerator for BeatGenerator {
 
 pub struct TuneGenerator {
    scale: Vec<Note>,
+   octave: u16,
 }
 
 impl TuneGenerator {
    #[must_use]
    #[inline]
-   pub const fn new(scale: Vec<Note>) -> Self {
-      return Self { scale };
+   pub const fn new(scale: Vec<Note>, octave: u16) -> Self {
+      return Self { scale, octave };
    }
 }
 
@@ -158,7 +123,9 @@ impl SequenceGenerator for TuneGenerator {
    fn generate_step(&self, _index: usize, _len: usize) -> SequenceStep {
       let mut rng = thread_rng();
       return if rng.gen_bool(0.9) {
-         SequenceStep::Freq(self.scale[rng.gen_range(0, self.scale.len())].get_freq(2) as f32)
+         SequenceStep::Freq(
+            self.scale[rng.gen_range(0, self.scale.len())].get_freq(self.octave) as f32,
+         )
       } else {
          SequenceStep::None
       };

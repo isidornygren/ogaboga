@@ -1,9 +1,9 @@
-use rand::{thread_rng, Rng};
-use std::{
-   thread,
-   time::{Duration, Instant},
-};
+use std::{thread, time::Instant};
 pub mod generator;
+use crate::rhythm::RhythmController;
+
+// mod pool;
+// mod sequencer_thread;
 
 #[derive(Clone)]
 pub enum SequenceStep {
@@ -17,38 +17,33 @@ pub enum SequenceStep {
 pub type Sequence = Vec<SequenceStep>;
 
 pub struct Sequencer {
-   // (Sequence, Steps per beat)
-   sequences: Vec<(Sequence, u8)>,
-   bpm_s: f64,
+   sequences: Vec<Sequence>,
+   rhythm_controller: Box<RhythmController>,
 }
 
 impl Sequencer {
    #[inline]
-   pub fn run<F>(&self, func: F)
+   pub fn run<F>(&mut self, func: F)
    where
       F: Fn(usize, Option<&SequenceStep>),
    {
-      let sleep_time = Duration::from_secs_f64(self.bpm_s);
       let mut seq_index = 0;
       let mut start_time = Instant::now();
 
       loop {
-         for (index, (sequence, _steps_per_beat)) in self.sequences.iter().enumerate() {
+         for (index, sequence) in self.sequences.iter().enumerate() {
             let mod_index = seq_index % sequence.len();
             func(index, sequence.get(mod_index));
          }
 
          seq_index += 1;
+         let sleep_time = self.rhythm_controller.step();
          thread::sleep(sleep_time - start_time.elapsed());
          start_time = Instant::now();
       }
    }
 
-   pub fn set_bpm(&mut self, bpm_s: f64) {
-      self.bpm_s = bpm_s;
-   }
-
-   pub fn set_sequence(&mut self, sequences: Vec<(Sequence, u8)>) {
+   pub fn set_sequence(&mut self, sequences: Vec<Sequence>) {
       self.sequences = sequences;
    }
 
@@ -58,12 +53,12 @@ impl Sequencer {
       F: Fn(usize, Option<&SequenceStep>),
       G: Fn(usize, &Sequence) -> Sequence,
    {
-      let sleep_time = Duration::from_secs_f64(self.bpm_s);
+      // let sleep_time = Duration::from_secs_f64(self.bpm_s);
       let mut seq_index = 0;
       let mut start_time = Instant::now();
 
       loop {
-         for (index, (sequence, _steps_per_beat)) in self.sequences.iter_mut().enumerate() {
+         for (index, sequence) in self.sequences.iter_mut().enumerate() {
             let mod_index = seq_index % sequence.len();
             if mod_index == 0 {
                *sequence = sequence_mutator(index, sequence);
@@ -72,6 +67,7 @@ impl Sequencer {
          }
 
          seq_index += 1;
+         let sleep_time = self.rhythm_controller.step();
          thread::sleep(sleep_time - start_time.elapsed());
          start_time = Instant::now();
       }
@@ -79,24 +75,24 @@ impl Sequencer {
 }
 
 pub struct SequencerBuilder {
-   bpm: u16,
-   sequences: Vec<(Sequence, u8)>,
+   sequences: Vec<Sequence>,
+   rhythm_controller: Box<dyn RhythmController>,
 }
 
 impl SequencerBuilder {
    #[must_use]
    #[inline]
-   pub fn new(bpm: u16) -> Self {
+   pub fn new(rhythm_controller: Box<dyn RhythmController>) -> Self {
       return Self {
-         bpm,
+         rhythm_controller,
          sequences: vec![],
       };
    }
 
    #[must_use]
    #[inline]
-   pub fn add_sequence(mut self, sequence: Sequence, steps_per_beat: u8) -> Self {
-      self.sequences.push((sequence, steps_per_beat));
+   pub fn add_sequence(mut self, sequence: Sequence) -> Self {
+      self.sequences.push(sequence);
       return self;
    }
 
@@ -104,7 +100,7 @@ impl SequencerBuilder {
    #[inline]
    pub fn build(self) -> Sequencer {
       return Sequencer {
-         bpm_s: (60.0 / f64::from(self.bpm)) / 2.0,
+         rhythm_controller: self.rhythm_controller,
          sequences: self.sequences,
       };
    }

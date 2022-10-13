@@ -5,6 +5,9 @@ use crate::{
 
 use crate::Envelope;
 
+pub mod pool;
+pub mod thread;
+
 // #[derive(Copy)]
 pub struct Voice {
    waveform: WaveBox,
@@ -26,6 +29,7 @@ pub struct VoiceHandler {
 }
 
 impl VoiceHandler {
+   #[inline]
    pub fn new(voice_args: Voice, sample_rate: u32) -> Self {
       return Self {
          wave_gen: WaveGenerator::new(sample_rate, 440.0, voice_args.waveform),
